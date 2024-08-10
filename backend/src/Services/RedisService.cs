@@ -12,10 +12,10 @@ public class RedisService
         _redis = connectionMultiplexer;
     }
 
-    public async Task SetCacheValueAsync(string key, string value)
+    public async Task SetCacheValueAsync(string key, string value, TimeSpan? expiration = null)
     {
         var db = _redis.GetDatabase();
-        await db.StringSetAsync(key, value);
+        await db.StringSetAsync(key, value, expiration);
     }
 
     public async Task<T?> GetCacheValueAsync<T>(string key)

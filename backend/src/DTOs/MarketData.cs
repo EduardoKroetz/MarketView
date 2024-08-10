@@ -8,7 +8,6 @@ public class MarketData
     public string UsedRange { get; set; }
     public string LogoUrl { get; set; }
     public SummaryProfile SummaryProfile { get; set; }
-
     public List<HistoricalData> HistoricalDataPrice { get; set; }
 }
 

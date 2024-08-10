@@ -10,16 +10,12 @@ namespace src.Controllers;
 public class AssetsController : Controller
 {
     private readonly RedisService _redisService;
-    private readonly string _brapiBaseUrl;
-    private readonly string _brapiApiKey;
-    private readonly HttpClient _client;
+    private readonly AssetsService _assetsService;
 
-    public AssetsController(RedisService redisService, IConfiguration configuration)
+    public AssetsController(RedisService redisService, AssetsService assetsService)
     {
         _redisService = redisService;
-        _brapiBaseUrl = $"https://brapi.dev/api";
-        _brapiApiKey = configuration["Brapi:ApiKey"] ?? throw new Exception("Invalid brapi api key");
-        _client = new HttpClient();
+        _assetsService = assetsService;
     }
 
     [HttpGet("search")]
@@ -56,6 +52,7 @@ public class AssetsController : Controller
         return Ok(Result.SucessResult(assets, "Success!"));
     }
 
+
     [HttpGet("{asset}")]
     public async Task<IActionResult> GetAssetAsync([FromRoute] string asset)
     {
@@ -64,27 +61,37 @@ public class AssetsController : Controller
             return BadRequest(Result.BadResult("Invalid asset"));
         }
 
-        //Get from cache
-        var cacheValue = await _redisService.GetCacheValueAsync<MarketData>($"{asset}_asset_data");
-        if (cacheValue != null)
+        //Get caches from redis
+        var assetData = await _redisService.GetCacheValueAsync<MarketData>($"{asset}_asset_data");
+        var assetNews = await _redisService.GetCacheValueAsync<List<NewArticle>>($"{asset}_asset_news");
+
+        if (assetData != null && assetNews != null)
         {
-            return Ok(Result.SucessResult(cacheValue, "Success!"));
+            return Ok(Result.SucessResult(new { AssetData = assetData, AssetNews = assetNews }, "Success!"));
         }
 
-        //Request to Brapi api
-        var response = await _client.GetAsync($"{_brapiBaseUrl}/quote/{asset.ToUpper()}?fundamental=true&modules=summaryProfile&interval=1d&range=3mo&token={_brapiApiKey}");
-        if (!response.IsSuccessStatusCode)
+        var symbol = asset.ToUpper();
+
+        if (assetData == null)
         {
-            return BadRequest(Result.BadResult("Um erro ocorreu ao buscar os dados"));
+            //Request to Brapi Api
+            assetData = await _assetsService.GetAssetsDataFromBrapi(symbol);
+
+            //Set asset data in cache
+            var jsonString = JsonConvert.SerializeObject(assetData);
+            await _redisService.SetCacheValueAsync($"{asset}_asset_data", jsonString);
         }
 
-        var jString = await response.Content.ReadAsStringAsync();
-        var data = JsonConvert.DeserializeObject<ResultMarketData>(jString)!.Results[0];
+        if (assetNews == null)
+        {
+            //Request to NewsApi
+            assetNews = await _assetsService.GetAssetsNewsFromNewsApi(symbol);
 
-        //Set content in cache
-        var jsonString = JsonConvert.SerializeObject(data);
-        await _redisService.SetCacheValueAsync($"{asset}_asset_data", jsonString);
+            // Set asset news in cache with 24 hours expiration
+            var jsonString = JsonConvert.SerializeObject(assetNews);
+            await _redisService.SetCacheValueAsync($"{asset}_asset_news", jsonString, TimeSpan.FromHours(24));
+        }
 
-        return Ok(Result.SucessResult(data, "Success!"));
+        return Ok(Result.SucessResult(new { AssetData = assetData, AssetNews = assetNews }, "Success!"));
     }
 }
