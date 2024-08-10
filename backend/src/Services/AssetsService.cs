@@ -17,6 +17,27 @@ public class AssetsService
         _client.DefaultRequestHeaders.UserAgent.ParseAdd("MarketView/1.0");
     }
 
+    public async Task<List<NewArticle>> GetAssetsNewsFromNewsApi(string symbol)
+    {
+        var responseNews = await _client.GetAsync($"https://newsapi.org/v2/everything?q={symbol}&language=pt&sortBy=popularity&apiKey={_newsApiKey}&pageSize=10");
+        var newsContent = new List<NewArticle>();
+        if (responseNews.IsSuccessStatusCode)
+        {
+            newsContent = JsonConvert.DeserializeObject<ResponseNews>(await responseNews.Content.ReadAsStringAsync())!.Articles;
+        }
+        return newsContent;
+    }
+
+    public async Task<List<NewArticle>> GetLastTenNewsArticles()
+    {
+        var responseNews = await _client.GetAsync($"https://newsapi.org/v2/everything?q=mercado%20financeiro&language=pt&sortBy=publishedAt&apiKey={_newsApiKey}&pageSize=10");
+        var newsContent = new List<NewArticle>();
+        if (responseNews.IsSuccessStatusCode)
+        {
+            newsContent = JsonConvert.DeserializeObject<ResponseNews>(await responseNews.Content.ReadAsStringAsync())!.Articles;
+        }
+        return newsContent;
+    }
 
     public async Task<MarketData> GetAssetsDataFromBrapi(string symbol)
     {
@@ -29,15 +50,6 @@ public class AssetsService
         return data;
     }
 
-    public async Task<List<NewArticle>> GetAssetsNewsFromNewsApi(string symbol)
-    {
-        var responseNews = await _client.GetAsync($"https://newsapi.org/v2/everything?q={symbol}&language=pt&sortBy=popularity&apiKey={_newsApiKey}&pageSize=10");
-        var newsContent = new List<NewArticle>();
-        if (responseNews.IsSuccessStatusCode)
-        {
-            newsContent = JsonConvert.DeserializeObject<ResponseNews>(await responseNews.Content.ReadAsStringAsync())!.Articles;
-        }
-        return newsContent;
-    }
-
-} 
+ 
+    
+}

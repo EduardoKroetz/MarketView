@@ -38,15 +38,15 @@ public class AssetsController : Controller
 
         //search for the asset based on the symbol
         var assets = assetsCacheValue.Stocks
-            .Where(x => 
-                x.Stock.Contains(symbol, StringComparison.OrdinalIgnoreCase) || 
+            .Where(x =>
+                x.Stock.Contains(symbol, StringComparison.OrdinalIgnoreCase) ||
                 x.Name.Contains(symbol, StringComparison.OrdinalIgnoreCase))
             .Skip(( page - 1 ) * pageSize)
             .Take(pageSize)
             .ToList();
 
         //Set cache for this symbol
-        var jsonString = JsonConvert.SerializeObject(assets);   
+        var jsonString = JsonConvert.SerializeObject(assets);
         await _redisService.SetCacheValueAsync($"{symbol}_data", jsonString);
 
         return Ok(Result.SucessResult(assets, "Success!"));
@@ -93,5 +93,27 @@ public class AssetsController : Controller
         }
 
         return Ok(Result.SucessResult(new { AssetData = assetData, AssetNews = assetNews }, "Success!"));
+    }
+
+
+    [HttpGet("last-news")]
+    public async Task<IActionResult> GetLastNewsAsync()
+    {
+        //Get cache from redis
+        var lastNews = await _redisService.GetCacheValueAsync<List<NewArticle>>("last_news");
+
+        if (lastNews != null)
+        {
+            return Ok(Result.SucessResult(lastNews, "Success!"));
+        }
+
+        //Get last news
+        lastNews = await _assetsService.GetLastTenNewsArticles();
+
+        //Set last new in redis cache
+        var jsonString = JsonConvert.SerializeObject(lastNews);
+        await _redisService.SetCacheValueAsync("last_news", jsonString, TimeSpan.FromHours(3));
+
+        return Ok(Result.SucessResult(lastNews, "Success!"));
     }
 }
