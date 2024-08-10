@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
-using src.DTOs.GetAssets;
+using src.DTOs;
 
 public class AssetsCachingService : BackgroundService
 {

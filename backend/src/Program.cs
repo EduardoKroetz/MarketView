@@ -12,6 +12,13 @@ builder.Services.AddHostedService<AssetsCachingService>();
 
 var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? throw new Exception("Invalid redis connection string");
 var connectionMultiplexer = ConnectionMultiplexer.Connect(redisConnectionString);
+var server = connectionMultiplexer.GetServer("localhost", 6379);
+var keys = server.Keys();
+
+foreach (var key in keys)
+{
+    await connectionMultiplexer.GetDatabase().KeyDeleteAsync(key);
+}
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(connectionMultiplexer);
 
