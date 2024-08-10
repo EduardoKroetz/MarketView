@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using src.DTOs;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace src.Services;
 
@@ -47,6 +49,17 @@ public class AssetsService
             throw new Exception("Ocorreu um erro ao buscar os dados, tente novamente mais tarde");
         }
         var data = JsonConvert.DeserializeObject<ResultMarketData>(await response.Content.ReadAsStringAsync())!.Results[0];
+        return data;
+    }
+
+    public async Task<List<SearchStockInfo>> GetTopTenMostTradedAssets()
+    {
+        var response = await _client.GetAsync($"https://brapi.dev/api/quote/list?sortBy=volume&sortOrder=desc&token={_brapiApiKey}&limit=10");
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception("Ocorreu um erro ao buscar os dados, tente novamente mais tarde");
+        }
+        var data = JsonConvert.DeserializeObject<GetAssets>(await response.Content.ReadAsStringAsync())!.Stocks;
         return data;
     }
 

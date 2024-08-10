@@ -116,4 +116,25 @@ public class AssetsController : Controller
 
         return Ok(Result.SucessResult(lastNews, "Success!"));
     }
+
+    [HttpGet("most-traded")]
+    public async Task<IActionResult> GetTopTenMostTraded()
+    {
+        //Get cache from redis
+        var mostTraded = await _redisService.GetCacheValueAsync<List<SearchStockInfo>>("most_traded_assets");
+
+        if (mostTraded != null)
+        {
+            return Ok(Result.SucessResult(mostTraded, "Success!"));
+        }
+
+        //Get last news
+        mostTraded = await _assetsService.GetTopTenMostTradedAssets();
+
+        //Set last new in redis cache
+        var jsonString = JsonConvert.SerializeObject(mostTraded);
+        await _redisService.SetCacheValueAsync("most_traded_assets", jsonString, TimeSpan.FromHours(48));
+
+        return Ok(Result.SucessResult(mostTraded, "Success!"));
+    }
 }
