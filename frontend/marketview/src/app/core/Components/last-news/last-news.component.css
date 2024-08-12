@@ -10,18 +10,19 @@
   cursor: pointer;
   color: gray;
   transition: 210ms;
-  width: max-content;
 }
 
 .last-news-container
 {
   overflow-y: auto;
   max-height: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
 }
 
 .last-new
 {
-  max-width: 500px;
   padding: 10px;
   border-radius: 4px;
 }

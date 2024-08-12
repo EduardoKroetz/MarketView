@@ -1,0 +1,67 @@
+.most-traded-container
+{
+  padding: 13px 0px 13px 13px;
+  border-radius: 10px;
+  border: 1px solid rgb(206, 212, 218);
+}
+
+.most-traded-container > h5:hover
+{
+  cursor: pointer;
+  color: gray;
+  transition: 210ms;
+  width: max-content;
+}
+
+.traded-container
+{
+  overflow-y: auto;
+  max-height: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+}
+
+.most-traded
+{
+  max-width: 500px;
+  padding: 10px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+
+.most-traded:hover
+{
+  cursor: pointer;
+  transition: 210ms;
+  background-color: rgba(128, 128, 128, 0.255);
+}
+
+.most-traded > img
+{
+  width: 50px;
+  height: 50px;
+}
+
+.most-traded > .content-container
+{
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  font-size: smaller;
+  flex: 1;
+}
+
+.content-container p
+{
+  margin: 0;
+  padding: 0;
+}
+
+.content-container > .about-asset
+{
+  display: flex;
+  gap: .4rem;
+}

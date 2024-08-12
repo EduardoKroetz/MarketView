@@ -1,7 +1,7 @@
 <div class="container">
   <h3>Pesquise pelo ativo desejado para ter acesso as últimas notícias e fundamentos</h3>
   <form class="container-fluid form-container" (submit)="search($event)">
-    <div class="col-8 col-md-6">
+    <div class="col-7 col-md-6">
       <input 
         type="text" 
         autocomplete="off" 
@@ -10,7 +10,7 @@
         [(ngModel)]="symbol" 
         placeholder="Pesquisar ativos">
     </div>
-    <button type="submit" class="btn btn-primary col-4 col-sm-3 col-md-2">Pesquisar</button>
+    <button type="submit" class="btn btn-primary col-5 col-sm-3 col-md-2">Pesquisar</button>
     <app-search-results (closeResultsEvent)="closeResults()" [resultsIsOpen]="resultsIsOpen" [assets]="assets"></app-search-results>
   </form>
 </div>

@@ -1,0 +1,22 @@
+<div class="most-traded-container">
+  <h5>Mais negociadas</h5>
+  <div class="traded-container">
+    <div 
+    *ngFor="let asset of assets" 
+    routerLink="/assets/{{asset.stock}}" 
+    class="most-traded">
+      <img src="{{asset.logo}}" alt="logo">
+      <div class="content-container">
+        <h6>{{ asset.stock }}</h6>
+        <div class="about-asset">
+          <p>{{ asset.sector }}</p>
+          <p>|</p>
+          <p>{{ asset.name }}</p>
+
+        </div>
+        <p>Volume: {{ asset.volume}}</p>
+      </div>
+    </div>
+  </div>
+
+</div>
