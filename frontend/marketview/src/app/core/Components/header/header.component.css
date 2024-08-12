@@ -1,0 +1,80 @@
+.header-container
+{
+  min-height: 70px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+i{
+  font-size: x-large;
+}
+
+.burger-drop-down {
+  max-height: 0;
+  position: absolute;
+  border-radius: 0px 0px 6px 0px;
+  visibility: hidden;
+  top: 10.4%;
+  left: 0%;
+  transition: max-height 0.2s ease-out;
+}
+
+.burger-drop-down.open {
+  max-height: 100px;
+  visibility: visible;
+}
+
+h1
+{
+  margin: auto;
+}
+
+/* Links */
+
+.links
+{
+  display: none;
+  gap: 2rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.links > div:hover, h1:hover, i:hover
+{
+  transition: 210ms;
+  cursor: pointer;
+  color: gray;
+}
+
+
+@media screen and (min-width: 480px) {
+  .header-container
+  {
+    justify-content: space-between;
+  }
+
+  .mobile-burger-container
+  {
+    display: none;
+  }
+
+  h1
+  {
+    margin: initial;
+  }
+
+  i{
+    display: none;
+  }
+
+  .links
+  { 
+    display: flex;
+  }
+
+
+
+  
+}

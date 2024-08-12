@@ -1,0 +1,15 @@
+.burger-container
+{
+  padding: 1rem;
+  border-radius: 0px 6px 6px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.burger-container > div:hover
+{
+  transition: 210ms;
+  cursor: pointer;
+  color: gray;
+}
