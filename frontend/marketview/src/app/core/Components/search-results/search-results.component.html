@@ -1,0 +1,16 @@
+<div class="results-container col-12 col-sm-11 col-md-8" [ngClass]="{'open': resultsIsOpen}">
+    <div *ngIf="resultsIsOpen && assets.length > 0; else elseNoResults">
+      <div *ngFor="let asset of assets" routerLink="/assets/{{asset.stock}}" class="search-result-container">
+        <img src="{{asset.logo}}" alt="logo">
+        <div class="content-container">
+          <p class="stock">{{ asset.stock }}</p>
+          <p class="name">{{ asset.name }}</p>
+        </div>
+      </div>
+    </div>
+
+</div>
+
+<ng-template #elseNoResults>   
+  <h4>Nenhum resultado encontrado</h4>
+</ng-template>
