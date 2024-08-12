@@ -1,0 +1,17 @@
+<div class="last-news">
+  <h5 routerLink="/last-news">Últimas notícias</h5>
+  <div class="last-news-container">
+    <div  
+    class="last-new col-12 link" 
+    routerLink="/last-news/{{ newArticle.title }}"  
+    *ngFor="let newArticle of lastNews" >
+    <p class="title">{{ newArticle.title }}</p>
+    <div class="content">
+      <p>Autor: {{ newArticle.author }}</p>
+      <p>|</p>
+      <p>Publicado em: {{ newArticle.publishedAt | date: 'dd/MM/yyyy hh:mm'}}</p>
+    </div>
+  </div>
+  </div>
+
+</div>
