@@ -1,4 +1,4 @@
-<div class="asset-container container">
+<div class="asset-container container" *ngIf="loading === false; else elseLoading">
   <!-- Exibir informações básicas da empresa -->
   <div class="company-info-container col-12 col-md-6">
     <div class="company-title">
@@ -6,11 +6,11 @@
       <h2>{{ companyInfo.longName }} ({{ companyInfo.symbol }})</h2>
     </div>
     <div class="company-info">
-      <p><strong>Setor:</strong> {{ companyInfo.summaryProfile.sector }}</p>
-      <p><strong>Indústria:</strong> {{ companyInfo.summaryProfile.industry }}</p>
-      <p><strong>Localização:</strong> {{ companyInfo.summaryProfile.city }}, {{ companyInfo.summaryProfile.state }}, {{ companyInfo.summaryProfile.country }}</p>
-      <p><strong>Website:</strong> <a [href]="companyInfo.summaryProfile.website" target="_blank">{{ companyInfo.summaryProfile.website }}</a></p>
-      <p><strong>Resumo:</strong> {{ companyInfo.summaryProfile.longBusinessSummary }}</p>
+      <p><strong>Setor:</strong> {{ companyInfo.summaryProfile.sector || "Nenhuma informação disponível" }}</p>
+      <p><strong>Indústria:</strong> {{ companyInfo.summaryProfile.industry || "Nenhuma informação disponível" }}</p>
+      <p><strong>Localização:</strong> {{ location }}</p>
+      <p><strong>Website:</strong> <a [href]="companyInfo.summaryProfile.website" target="_blank">{{ companyInfo.summaryProfile.website || "Nenhuma informação disponível" }}</a></p>
+      <p><strong>Resumo:</strong> {{ companyInfo.summaryProfile.longBusinessSummary || "Nenhuma informação disponível" }}</p>
     </div>
   </div>
 
@@ -35,11 +35,23 @@
   <div class="chart-container col-12">
     <h3>Cotação (3 meses)</h3>
     <canvas baseChart
-      *ngIf="isBrowser"
+      *ngIf="isBrowser && companyInfo.historicalDataPrice.length > 0; else elseNoInformation"
       [data]="lineChartData"
       [options]="lineChartOptions"
       [type]="'line'">
     </canvas>
   </div>
-
 </div>
+
+<ng-template #elseNoInformation>
+  <p>Nenhuma informação disponível</p>
+</ng-template>
+
+<ng-template #elseLoading>
+  <div class="container loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+</ng-template>

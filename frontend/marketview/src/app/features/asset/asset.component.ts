@@ -1,6 +1,6 @@
-import { Component, Inject, OnChanges, OnInit, PLATFORM_ID, SimpleChange, SimpleChanges } from '@angular/core';
+import { Component, Inject, OnInit, PLATFORM_ID} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChartData, ChartOptions, ChartType } from 'chart.js';
+import { ChartData, ChartOptions } from 'chart.js';
 import { CompanyInfo } from '../../core/Models/CompanyInfo';
 import { AssetPageService } from '../../core/Services/asset-page.service';
 import NewArticle from '../../core/Models/NewArticle';
@@ -15,10 +15,12 @@ import { ScreenSizeService } from '../../core/Services/screen-size.service';
   templateUrl: './asset.component.html',
   styleUrls: ['./asset.component.css']
 })
-export class AssetComponent implements OnInit, OnChanges {
+export class AssetComponent implements OnInit {
   companyInfo: CompanyInfo = {historicalDataPrice: [],logoUrl: "", longName: "", summaryProfile: { address1: "", city: "", country: "", industry: "", longBusinessSummary: "", sector: "", state: "", website: "" }, symbol: "", usedInterval: "", usedRange: ""  }
   lastCompanyNews: NewArticle[] = [];
   symbol: string = "";
+  loading = true;
+  location = this.companyInfo.summaryProfile.city && this.companyInfo.summaryProfile.state && this.companyInfo.summaryProfile.country ? `${this.companyInfo.summaryProfile.city}, ${this.companyInfo.summaryProfile.state},  ${this.companyInfo.summaryProfile.country}` : "Nenhuma informação disponível"
   public isBrowser: boolean;
   screenWidth$ = 0;
   public lineChartData: ChartData<'line'> = {
@@ -81,14 +83,9 @@ export class AssetComponent implements OnInit, OnChanges {
           },
         ]
       };
+      
+      this.loading = false;
     });
   }
 
-  ngOnChanges(changes: SimpleChanges){
-    console.log("passsss")
-    if (changes['screenSizeService.Width']) {
-      console.log("pass")
-      this.lineChartData.datasets[0].pointRadius = this.screenSizeService.width > 768 ? 3 : 1;
-    }
-  }
 }
