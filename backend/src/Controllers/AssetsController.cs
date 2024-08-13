@@ -87,10 +87,14 @@ public class AssetsController : Controller
             //Request to NewsApi
             assetNews = await _assetsService.GetAssetsNewsFromNewsApi(symbol);
 
+          
+
             // Set asset news in cache with 24 hours expiration
             var jsonString = JsonConvert.SerializeObject(assetNews);
             await _redisService.SetCacheValueAsync($"{asset}_asset_news", jsonString, TimeSpan.FromHours(24));
         }
+
+        assetNews = assetNews.OrderByDescending(x => x.PublishedAt).ToList();
 
         return Ok(Result.SucessResult(new { AssetData = assetData, AssetNews = assetNews }, "Success!"));
     }
