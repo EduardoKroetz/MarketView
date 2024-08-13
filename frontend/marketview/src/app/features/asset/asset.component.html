@@ -1,0 +1,45 @@
+<div class="asset-container container">
+  <!-- Exibir informações básicas da empresa -->
+  <div class="company-info-container col-12 col-md-6">
+    <div class="company-title">
+      <img [src]="companyInfo.logoUrl" alt="{{ companyInfo.longName }} Logo" class="company-logo">
+      <h2>{{ companyInfo.longName }} ({{ companyInfo.symbol }})</h2>
+    </div>
+    <div class="company-info">
+      <p><strong>Setor:</strong> {{ companyInfo.summaryProfile.sector }}</p>
+      <p><strong>Indústria:</strong> {{ companyInfo.summaryProfile.industry }}</p>
+      <p><strong>Localização:</strong> {{ companyInfo.summaryProfile.city }}, {{ companyInfo.summaryProfile.state }}, {{ companyInfo.summaryProfile.country }}</p>
+      <p><strong>Website:</strong> <a [href]="companyInfo.summaryProfile.website" target="_blank">{{ companyInfo.summaryProfile.website }}</a></p>
+      <p><strong>Resumo:</strong> {{ companyInfo.summaryProfile.longBusinessSummary }}</p>
+    </div>
+  </div>
+
+  <!-- Exibir as últimas notícias da empresa -->
+  <div class="company-news col-12 col-md-5">
+    <h3>Últimas Notícias</h3>
+    <div *ngIf="lastCompanyNews.length === 0">
+      <p>Nenhuma notícia disponível.</p>
+    </div>
+    <ul *ngIf="lastCompanyNews.length > 0">
+      <li class="new" *ngFor="let news of lastCompanyNews">
+        <a [href]="news.url" target="_blank">
+          <h4>{{ news.title }}</h4>
+          <p>{{ news.publishedAt | date }}</p>
+          <p>{{ news.author }}</p>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Exibir o gráfico de preço de fechamento -->
+  <div class="chart-container col-12">
+    <h3>Cotação (3 meses)</h3>
+    <canvas baseChart
+      *ngIf="isBrowser"
+      [data]="lineChartData"
+      [options]="lineChartOptions"
+      [type]="'line'">
+    </canvas>
+  </div>
+
+</div>

@@ -1,0 +1,83 @@
+p
+{
+  margin: 0;
+  padding: 0;
+}
+
+a{
+  color: black;
+  text-decoration: none;
+}
+
+.asset-container
+{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+/* COMPANY INFO */
+
+.company-info-container
+{
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.company-title
+{
+  display: flex;
+  gap: 1rem;
+}
+
+.company-title > h2
+{
+  text-align: center;
+}
+
+.company-title > img
+{
+  width: 100px;
+  border-radius: 4px;
+}
+
+/* NEWS */
+
+.company-news
+{
+
+}
+
+.company-news > ul
+{
+  max-height: 85vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  flex: 1;
+}
+
+.company-news .new
+{
+  padding: 10px;
+  border-radius: 7px 0px 0px 7px;
+}
+
+.company-news .new:hover
+{
+  background-color: rgba(128, 128, 128, 0.255);
+  transition: 190ms;
+  cursor: pointer;
+}
+
+/* GRAPH */
+
+canvas {
+  max-height: 400px;
+}
+
+.chart-container {
+  flex: 1;
+  
+}
