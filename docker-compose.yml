@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    container_name: marketview-redis
+    ports:
+      - "6379:6379"
+
+  backend:
+    image: eduardokroetz/marketview:latest
+    container_name: backend
+    depends_on:
+      - redis
+    ports:
+      - "80:8080"
+      - "443:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Redis=redis:6379;abortConnect=false
+

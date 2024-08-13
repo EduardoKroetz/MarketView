@@ -11,8 +11,16 @@ builder.Services.AddSingleton<RedisService>();
 builder.Services.AddHostedService<AssetsCachingService>();
 builder.Services.AddScoped<AssetsService>();
 
+var configurationOptions = new ConfigurationOptions
+{
+    EndPoints = { "redis:6379" },
+    AbortOnConnectFail = false,
+    ConnectRetry = 5,
+    ConnectTimeout = 5000 // 5 segundos
+};
+
 var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? throw new Exception("Invalid redis connection string");
-var connectionMultiplexer = ConnectionMultiplexer.Connect(redisConnectionString);
+var connectionMultiplexer = ConnectionMultiplexer.Connect(configurationOptions);
 //var server = connectionMultiplexer.GetServer("localhost", 6379);
 //var keys = server.Keys();
 
