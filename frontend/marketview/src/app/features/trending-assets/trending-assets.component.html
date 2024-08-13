@@ -1,0 +1,14 @@
+<div class="trending-assets-list container">
+  <div routerLink="/assets/{{asset.stock}}" *ngFor="let asset of trendingAssets" class="asset-item card mb-3">
+    <div class="row">
+      <img [src]="asset.logo" class="col-4 col-sm-3 col-md-2" alt="{{asset.name}}">
+      <div class="col-8">
+        <div class="card-body">
+          <h5 class="card-title">{{ asset.name }} ({{ asset.stock }})</h5>
+          <p class="card-text"><small class="text-muted">Sector: {{ asset.sector }} | Type: {{ asset.type }}</small></p>
+          <p class="card-text"><strong>Volume: </strong>{{ asset.volume | number }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

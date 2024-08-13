@@ -1,10 +1,13 @@
 .burger-container
 {
+  position: absolute;
+  z-index: 1000;
   padding: 1rem;
   border-radius: 0px 6px 6px 6px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.3rem;
+  width: 180px;
 }
 
 .burger-container > div:hover

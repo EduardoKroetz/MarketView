@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { SearchAssetComponent } from "./Components/search-asset/search-asset.component";
+import { SearchAssetComponent } from "../../core/search-asset/search-asset.component";
 import { HeaderComponent } from "../../core/Components/header/header.component";
 import { LastNewsComponent } from "../../core/Components/last-news/last-news.component";
 import { MostTradedComponent } from "../../core/Components/most-traded/most-traded.component";

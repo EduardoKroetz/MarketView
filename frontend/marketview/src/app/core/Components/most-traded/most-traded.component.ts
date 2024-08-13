@@ -17,11 +17,8 @@ export class MostTradedComponent implements OnInit {
   constructor (private mostTradedService: MostTradedService ) {}
 
   ngOnInit(): void {
-    this.mostTradedService.getMostTraded()
-      .subscribe(
-        (response: any) => {
-          this.assets = response.data;
-        }
-      )
+    this.mostTradedService.mostTraded$.subscribe(assets => {
+      this.assets = assets;
+    });
   }
 }

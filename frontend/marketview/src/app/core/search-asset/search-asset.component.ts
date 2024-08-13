@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { SearchAssetService } from '../../../../core/Services/search-asset.service';
-import SearchAsset from '../../../../core/Models/SearchAsset';
+import { SearchAssetService } from '../Services/search-asset.service';
+import SearchAsset from '../Models/SearchAsset';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SearchResultsComponent } from "../../../../core/Components/search-results/search-results.component";
+import { SearchResultsComponent } from "../Components/search-results/search-results.component";
 
 @Component({
   selector: 'app-search-asset',

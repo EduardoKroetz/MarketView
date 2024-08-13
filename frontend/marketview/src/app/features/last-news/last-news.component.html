@@ -1,0 +1,18 @@
+<div class="news-list container">
+  <div *ngFor="let article of lastNews" class="news-item card mb-3">
+    <div class="row g-0">
+      <div class="col-md-4">
+        <img [src]="article.urlToImage" class="img-fluid rounded-start" alt="{{article.title}}">
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h5 class="card-title">{{ article.title }}</h5>
+          <p class="card-text"><small class="text-muted">Por {{ article.author }} em {{ article.publishedAt | date: 'shortDate' }}</small></p>
+          <a [href]="article.url" class="btn btn-primary" target="_blank">Saiba mais</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template class=""></ng-template>

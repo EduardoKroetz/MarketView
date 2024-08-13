@@ -1,18 +1,21 @@
-<div class="container-fluid bg-dark header-container">
-  <div class="mobile-burger-container">
-    <i class="bi bi-list" (click)="burgerIsOpen = !burgerIsOpen"></i>
-    <div class="burger-drop-down bg-dark" [ngClass]="{'open': burgerIsOpen}">
-      <app-burger-drop-down 
-        *ngIf="burgerIsOpen" 
-        [burgerIsOpen]="burgerIsOpen"
-        (closeBurgerEvent)="closeBurger()">
-      </app-burger-drop-down>
+<div class="bg-dark">
+  <div class="container bg-dark header-container">
+    <div class="mobile-burger-container">
+      <i class="bi bi-list" (click)="burgerIsOpen = !burgerIsOpen"></i>
+      <div class="burger-drop-down bg-dark" [ngClass]="{'open': burgerIsOpen}">
+        <app-burger-drop-down 
+          *ngIf="burgerIsOpen" 
+          [burgerIsOpen]="burgerIsOpen"
+          (closeBurgerEvent)="closeBurger()">
+        </app-burger-drop-down>
+      </div>
+    </div>
+    <h1 routerLink="/" class="h2">MarketView</h1>
+    <!-- above 768px -->
+    <div class="links">
+      <div routerLink="/last-news">Últimas Notícias</div>
+      <div routerLink="/most-traded">Mais Negociados</div>
     </div>
   </div>
-  <h1 routerLink="/" class="h2">MarketView</h1>
-  <!-- above 768px -->
-  <div class="links">
-    <div routerLink="/last-news">Últimas Notícias</div>
-    <div routerLink="/most-traded">Mais Negociados</div>
-  </div>
+
 </div>
