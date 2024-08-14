@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "build": "node set-env.js && ng build",
     "start": "ng serve",
-    "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:marketview": "node dist/marketview/server/server.mjs"
@@ -21,11 +21,13 @@
     "@angular/platform-server": "^18.1.0",
     "@angular/router": "^18.1.0",
     "@angular/ssr": "^18.1.4",
+    "@nguniversal/express-engine": "^7.0.1",
     "boostrap": "^2.0.0",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "chart.js": "^4.4.3",
     "chartjs-adapter-date-fns": "^3.0.0",
+    "dotenv": "^16.4.5",
     "express": "^4.18.2",
     "ng2-charts": "^6.0.1",
     "rxjs": "~7.8.0",
