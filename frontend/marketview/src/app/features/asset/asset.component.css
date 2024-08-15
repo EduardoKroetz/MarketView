@@ -89,12 +89,14 @@ canvas {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: x-large;
-  height: 70vh;
+
+  height: inherit;
+  width: inherit;
 }
 
 .loading-container > div
 {
-  width: 4rem;
-  height: 4rem;
+  width: 2rem;
+  height: 2rem;
+  margin: auto;
 }

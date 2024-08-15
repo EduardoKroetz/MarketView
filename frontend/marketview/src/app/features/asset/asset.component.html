@@ -1,11 +1,11 @@
-<div class="asset-container container" *ngIf="loading === false; else elseLoading">
+<div class="asset-container container">
   <!-- Exibir informações básicas da empresa -->
   <div class="company-info-container col-12 col-md-6">
-    <div class="company-title">
+    <div class="company-title" *ngIf="loadingCompanyInfo === false; else elseLoading">
       <img [src]="companyInfo.logoUrl" alt="{{ companyInfo.longName }} Logo" class="company-logo">
       <h2>{{ companyInfo.longName }} ({{ companyInfo.symbol }})</h2>
     </div>
-    <div class="company-info">
+    <div class="company-info" *ngIf="!loadingCompanyInfo">
       <p><strong>Setor:</strong> {{ companyInfo.summaryProfile.sector || "Nenhuma informação disponível" }}</p>
       <p><strong>Indústria:</strong> {{ companyInfo.summaryProfile.industry || "Nenhuma informação disponível" }}</p>
       <p><strong>Localização:</strong> {{ location }}</p>
@@ -20,7 +20,7 @@
     <div *ngIf="lastCompanyNews.length === 0">
       <p>Nenhuma notícia disponível.</p>
     </div>
-    <ul *ngIf="lastCompanyNews.length > 0">
+    <ul *ngIf="lastCompanyNews.length > 0 && loadingCompanyNews === false; else elseLoading">
       <li class="new" *ngFor="let news of lastCompanyNews">
         <a [href]="news.url" target="_blank">
           <h4>{{ news.title }}</h4>
@@ -32,7 +32,7 @@
   </div>
 
   <!-- Exibir o gráfico de preço de fechamento -->
-  <div class="chart-container col-12">
+  <div *ngIf="!loadingCompanyInfo" class="chart-container col-12">
     <h3>Cotação (3 meses)</h3>
     <canvas baseChart
       *ngIf="isBrowser && companyInfo.historicalDataPrice.length > 0; else elseNoInformation"

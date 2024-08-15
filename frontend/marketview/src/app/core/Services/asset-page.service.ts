@@ -12,4 +12,8 @@ export class AssetPageService {
   getCompanyInfo(symbol: string) {
     return this.http.get(`${environment.api_url}/assets/${symbol}`)
   }
+
+  getCompanyNews(symbol: string) {
+    return this.http.get(`${environment.api_url}/assets/news/${symbol}`)
+  }
 }

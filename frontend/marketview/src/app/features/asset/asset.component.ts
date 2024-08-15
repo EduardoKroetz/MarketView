@@ -19,7 +19,8 @@ export class AssetComponent implements OnInit {
   companyInfo: CompanyInfo = {historicalDataPrice: [],logoUrl: "", longName: "", summaryProfile: { address1: "", city: "", country: "", industry: "", longBusinessSummary: "", sector: "", state: "", website: "" }, symbol: "", usedInterval: "", usedRange: ""  }
   lastCompanyNews: NewArticle[] = [];
   symbol: string = "";
-  loading = true;
+  loadingCompanyInfo = true;
+  loadingCompanyNews = true;
   location = this.companyInfo.summaryProfile.city && this.companyInfo.summaryProfile.state && this.companyInfo.summaryProfile.country ? `${this.companyInfo.summaryProfile.city}, ${this.companyInfo.summaryProfile.state},  ${this.companyInfo.summaryProfile.country}` : "Nenhuma informação disponível"
   public isBrowser: boolean;
   screenWidth$ = 0;
@@ -58,34 +59,46 @@ export class AssetComponent implements OnInit {
   ngOnInit(): void {
     this.symbol = this.route.snapshot.paramMap.get('symbol')!;
 
-    this.assetPageService.getCompanyInfo(this.symbol).subscribe((response: any) => {
-      this.companyInfo = response.data.assetData;
-      this.lastCompanyNews = response.data.assetNews;
+    this.assetPageService.getCompanyInfo(this.symbol).subscribe(
+      (response: any) => {
+        this.companyInfo = response.data;
 
-      this.lineChartData = {
-        labels: this.companyInfo.historicalDataPrice.map(data => new Date(data.date * 1000).toLocaleDateString('pt-BR', {
-          day: '2-digit',
-          month: '2-digit',
-        })),
-        datasets: [
-          {
-            data: this.companyInfo.historicalDataPrice.map(data => data.close),
-            borderColor: 'rgba(0, 0, 0, 100)',
-            backgroundColor: 'rgb(52, 58, 64)',
-            borderWidth: 3,
-            pointBackgroundColor: 'gray',
-            pointBorderColor: 'gray',
-            pointHoverBackgroundColor: 'gray',
-            pointHoverBorderColor: 'gray',
-            pointRadius:  this.screenWidth$ < 480 ? 1 : this.screenWidth$ < 560 ? 2 : 3,
-            pointHoverRadius: 7,
-            fill: true
-          },
-        ]
-      };
-      
-      this.loading = false;
-    });
+        this.lineChartData = {
+          labels: this.companyInfo.historicalDataPrice.map(data => new Date(data.date * 1000).toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+          })),
+          datasets: [
+            {
+              data: this.companyInfo.historicalDataPrice.map(data => data.close),
+              borderColor: 'rgba(0, 0, 0, 100)',
+              backgroundColor: 'rgb(52, 58, 64)',
+              borderWidth: 3,
+              pointBackgroundColor: 'gray',
+              pointBorderColor: 'gray',
+              pointHoverBackgroundColor: 'gray',
+              pointHoverBorderColor: 'gray',
+              pointRadius:  this.screenWidth$ < 480 ? 1 : this.screenWidth$ < 560 ? 2 : 3,
+              pointHoverRadius: 7,
+              fill: true
+            },
+          ]
+        };
+
+        this.loadingCompanyInfo = false;
+      }, 
+      (error) => {
+        this.loadingCompanyInfo = false; 
+      }
+    );
+
+    this.assetPageService.getCompanyNews(this.symbol).subscribe(
+      (response: any) => {
+        this.lastCompanyNews = response.data;
+        this.loadingCompanyNews = false;
+      },
+      (error) => {
+        this.loadingCompanyNews = false; 
+      })
   }
-
 }
