@@ -28,7 +28,7 @@ public class AssetsController : Controller
 
         //Get from cache
         var cacheValue = await _redisService.GetCacheValueAsync<List<SearchStockInfo>>($"{symbol}_data");
-        if (cacheValue != null)
+        if (cacheValue != null && cacheValue.Count > 0)
         {
             return Ok(Result.SucessResult(cacheValue.Skip(( page - 1 ) * pageSize).Take(pageSize).ToList(), "Success!"));
         }
@@ -54,7 +54,7 @@ public class AssetsController : Controller
 
 
     [HttpGet("{asset}")]
-    public async Task<IActionResult> GetAssetAsync([FromRoute] string asset)
+    public async Task<IActionResult> GetAssetDataAsync([FromRoute] string asset)
     {
         if (string.IsNullOrEmpty(asset))
         {
@@ -63,11 +63,10 @@ public class AssetsController : Controller
 
         //Get caches from redis
         var assetData = await _redisService.GetCacheValueAsync<MarketData>($"{asset}_asset_data");
-        var assetNews = await _redisService.GetCacheValueAsync<List<NewArticle>>($"{asset}_asset_news");
 
-        if (assetData != null && assetNews != null)
+        if (assetData != null)
         {
-            return Ok(Result.SucessResult(new { AssetData = assetData, AssetNews = assetNews }, "Success!"));
+            return Ok(Result.SucessResult(assetData , "Success!"));
         }
 
         var symbol = asset.ToUpper();
@@ -82,12 +81,32 @@ public class AssetsController : Controller
             await _redisService.SetCacheValueAsync($"{asset}_asset_data", jsonString);
         }
 
+
+        return Ok(Result.SucessResult(assetData, "Success!"));
+    }
+
+    [HttpGet("news/{asset}")]
+    public async Task<IActionResult> GetAssetNewsAsync([FromRoute] string asset)
+    {
+        if (string.IsNullOrEmpty(asset))
+        {
+            return BadRequest(Result.BadResult("Invalid asset"));
+        }
+
+        //Get caches from redis
+        var assetNews = await _redisService.GetCacheValueAsync<List<NewArticle>>($"{asset}_asset_news");
+
+        if (assetNews != null && assetNews.Count > 0)
+        {
+            return Ok(Result.SucessResult(assetNews , "Success!"));
+        }
+
+        var symbol = asset.ToUpper();
+
         if (assetNews == null)
         {
             //Request to NewsApi
             assetNews = await _assetsService.GetAssetsNewsFromNewsApi(symbol);
-
-          
 
             // Set asset news in cache with 24 hours expiration
             var jsonString = JsonConvert.SerializeObject(assetNews);
@@ -96,7 +115,7 @@ public class AssetsController : Controller
 
         assetNews = assetNews.OrderByDescending(x => x.PublishedAt).ToList();
 
-        return Ok(Result.SucessResult(new { AssetData = assetData, AssetNews = assetNews }, "Success!"));
+        return Ok(Result.SucessResult(assetNews , "Success!"));
     }
 
 

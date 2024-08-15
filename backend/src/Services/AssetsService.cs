@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
 using src.DTOs;
-using System.Collections.Generic;
-using System.Globalization;
 
 namespace src.Services;
 
@@ -22,6 +20,7 @@ public class AssetsService
     public async Task<List<NewArticle>> GetAssetsNewsFromNewsApi(string symbol)
     {
         var responseNews = await _client.GetAsync($"https://newsapi.org/v2/everything?q={symbol}&language=pt&sortBy=popularity&apiKey={_newsApiKey}&pageSize=10");
+        responseNews.EnsureSuccessStatusCode();
         var newsContent = new List<NewArticle>();
         if (responseNews.IsSuccessStatusCode)
         {
@@ -32,7 +31,8 @@ public class AssetsService
 
     public async Task<List<NewArticle>> GetLastTenNewsArticles()
     {
-        var responseNews = await _client.GetAsync($"https://newsapi.org/v2/everything?q=mercado%20financeiro&language=pt&sortBy=publishedAt&apiKey={_newsApiKey}&pageSize=10");
+        var responseNews = await _client.GetAsync($"https://newsapi.org/v2/everything?q=financeiro&language=pt&sortBy=publishedAt&apiKey={_newsApiKey}&pageSize=10");
+        responseNews.EnsureSuccessStatusCode();
         var newsContent = new List<NewArticle>();
         if (responseNews.IsSuccessStatusCode)
         {
@@ -44,6 +44,7 @@ public class AssetsService
     public async Task<MarketData> GetAssetsDataFromBrapi(string symbol)
     {
         var response = await _client.GetAsync($"https://brapi.dev/api/quote/{symbol}?fundamental=true&modules=summaryProfile&interval=1d&range=3mo&token={_brapiApiKey}");
+        response.EnsureSuccessStatusCode();
         if (!response.IsSuccessStatusCode)
         {
             throw new Exception("Ocorreu um erro ao buscar os dados, tente novamente mais tarde");
@@ -55,6 +56,7 @@ public class AssetsService
     public async Task<List<SearchStockInfo>> GetTopTenMostTradedAssets()
     {
         var response = await _client.GetAsync($"https://brapi.dev/api/quote/list?sortBy=volume&sortOrder=desc&token={_brapiApiKey}&limit=10");
+        response.EnsureSuccessStatusCode();
         if (!response.IsSuccessStatusCode)
         {
             throw new Exception("Ocorreu um erro ao buscar os dados, tente novamente mais tarde");
