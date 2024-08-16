@@ -3,7 +3,7 @@
   <div class="company-info-container col-12 col-md-6">
     <div class="company-title" *ngIf="loadingCompanyInfo === false; else elseLoading">
       <img [src]="companyInfo.logoUrl" alt="{{ companyInfo.longName }} Logo" class="company-logo">
-      <h2>{{ companyInfo.longName }} ({{ companyInfo.symbol }})</h2>
+      <h2>{{ companyInfo.longName   }} {{ companyInfo.symbol ? '(' + companyInfo.symbol + ')' : "Nenhuma informação disponível" }}</h2>
     </div>
     <div class="company-info" *ngIf="!loadingCompanyInfo">
       <p><strong>Setor:</strong> {{ companyInfo.summaryProfile.sector || "Nenhuma informação disponível" }}</p>
@@ -17,10 +17,10 @@
   <!-- Exibir as notícias da empresa -->
   <div class="company-news col-12 col-md-5">
     <h3>Notícias Relacionadas</h3>
-    <div *ngIf="lastCompanyNews.length === 0">
+    <div *ngIf="lastCompanyNews.length === 0 && !loadingCompanyNews">
       <p>Nenhuma notícia disponível.</p>
     </div>
-    <ul *ngIf="lastCompanyNews.length > 0 && loadingCompanyNews === false; else elseLoading">
+    <ul *ngIf="!loadingCompanyNews; else elseLoading">
       <li class="new" *ngFor="let news of lastCompanyNews">
         <a [href]="news.url" target="_blank">
           <h4>{{ news.title }}</h4>
