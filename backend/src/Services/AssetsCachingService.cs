@@ -5,21 +5,24 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using src.DTOs;
+using StackExchange.Redis;
 
 public class AssetsCachingService : BackgroundService
 {
     private readonly HttpClient _httpClient;
-    private readonly RedisService _redisService;
+    private readonly IDistributedCache _cache;
     private readonly string _apiKey;
 
-    public AssetsCachingService(RedisService redisService, IConfiguration configuration)
+    public AssetsCachingService(HttpClient httpClient, IDistributedCache cache, IConfiguration configuration)
     {
-        _httpClient = new HttpClient();
-        _redisService = redisService;
-        _apiKey = configuration["Brapi:ApiKey"] ?? throw new Exception("Invalid brapi api key");
+        _httpClient = httpClient;
+        _cache = cache;
+        _apiKey = configuration["Brapi:ApiKey"] ?? throw new Exception("Invalid brapi api key");    
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -33,14 +36,20 @@ public class AssetsCachingService : BackgroundService
     }
 
     private async Task CacheAssetsAsync()
-    {    
+    {
         var response = await _httpClient.GetAsync($"https://brapi.dev/api/quote/list?token={_apiKey}");
         if (response.StatusCode == HttpStatusCode.OK)
         {
             var content = await response.Content.ReadAsStringAsync();
             var assets = JsonConvert.DeserializeObject<GetAssets>(content);
             var jsonString = JsonConvert.SerializeObject(assets);
-            await _redisService.SetCacheValueAsync("assets_data", jsonString);
+
+            var cacheOptions = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(7)
+            };
+
+            await _cache.SetStringAsync("assets_data", jsonString, cacheOptions);
         }
     }
 }

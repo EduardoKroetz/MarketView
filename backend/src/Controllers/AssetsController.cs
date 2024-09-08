@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using src.DTOs;
 using src.Services;
@@ -9,13 +10,13 @@ namespace src.Controllers;
 [Route("api/[controller]")]
 public class AssetsController : Controller
 {
-    private readonly RedisService _redisService;
     private readonly AssetsService _assetsService;
+    private readonly IDistributedCache _cache;
 
-    public AssetsController(RedisService redisService, AssetsService assetsService)
+    public AssetsController(AssetsService assetsService, IDistributedCache cache)
     {
-        _redisService = redisService;
         _assetsService = assetsService;
+        _cache = cache;
     }
 
     [HttpGet("search")]
@@ -26,17 +27,16 @@ public class AssetsController : Controller
             return BadRequest(Result.BadResult("Informe o símbolo do ativo"));
         }
 
-        //Get from cache
-        var cacheValue = await _redisService.GetCacheValueAsync<List<SearchStockInfo>>($"{symbol}_data");
-        if (cacheValue != null && cacheValue.Count > 0)
+        var cacheValue = await _cache.GetStringAsync($"{symbol}_data");
+        if (cacheValue != null)
         {
-            return Ok(Result.SucessResult(cacheValue.Skip(( page - 1 ) * pageSize).Take(pageSize).ToList(), "Success!"));
+            var cachedAssets = JsonConvert.DeserializeObject<List<SearchStockInfo>>(cacheValue);
+            return Ok(Result.SucessResult(cachedAssets.Skip(( page - 1 ) * pageSize).Take(pageSize).ToList(), "Success!"));
         }
 
-        //Request to cache
-        var assetsCacheValue = await _redisService.GetCacheValueAsync<GetAssets>("assets_data") ?? throw new Exception("Não foi possível buscar os ativos do cache, tente novamente mais tarde");
+        var assetsCacheValueString = await _cache.GetStringAsync("assets_data") ?? throw new Exception("Não foi possível buscar os ativos do cache, tente novamente mais tarde");
+        var assetsCacheValue = JsonConvert.DeserializeObject<GetAssets>(assetsCacheValueString);
 
-        //search for the asset based on the symbol
         var assets = assetsCacheValue.Stocks
             .Where(x =>
                 x.Stock.Contains(symbol, StringComparison.OrdinalIgnoreCase) ||
@@ -45,13 +45,15 @@ public class AssetsController : Controller
             .Take(pageSize)
             .ToList();
 
-        //Set cache for this symbol
         var jsonString = JsonConvert.SerializeObject(assets);
-        await _redisService.SetCacheValueAsync($"{symbol}_data", jsonString);
+        var cacheOptions = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
+        };
+        await _cache.SetStringAsync($"{symbol}_data", jsonString, cacheOptions);
 
         return Ok(Result.SucessResult(assets, "Success!"));
     }
-
 
     [HttpGet("{asset}")]
     public async Task<IActionResult> GetAssetDataAsync([FromRoute] string asset)
@@ -61,26 +63,21 @@ public class AssetsController : Controller
             return BadRequest(Result.BadResult("Invalid asset"));
         }
 
-        //Get caches from redis
-        var assetData = await _redisService.GetCacheValueAsync<MarketData>($"{asset}_asset_data");
-
-        if (assetData != null)
+        var cacheValue = await _cache.GetStringAsync($"{asset}_asset_data");
+        if (cacheValue != null)
         {
-            return Ok(Result.SucessResult(assetData , "Success!"));
+            var data = JsonConvert.DeserializeObject<MarketData>(cacheValue);
+            return Ok(Result.SucessResult(data, "Success!"));
         }
 
         var symbol = asset.ToUpper();
+        var assetData = await _assetsService.GetAssetsDataFromBrapi(symbol);
 
-        if (assetData == null)
+        var jsonString = JsonConvert.SerializeObject(assetData);
+        await _cache.SetStringAsync($"{asset}_asset_data", jsonString, new DistributedCacheEntryOptions
         {
-            //Request to Brapi Api
-            assetData = await _assetsService.GetAssetsDataFromBrapi(symbol);
-
-            //Set asset data in cache
-            var jsonString = JsonConvert.SerializeObject(assetData);
-            await _redisService.SetCacheValueAsync($"{asset}_asset_data", jsonString);
-        }
-
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
+        });
 
         return Ok(Result.SucessResult(assetData, "Success!"));
     }
@@ -93,49 +90,42 @@ public class AssetsController : Controller
             return BadRequest(Result.BadResult("Invalid asset"));
         }
 
-        //Get caches from redis
-        var assetNews = await _redisService.GetCacheValueAsync<List<NewArticle>>($"{asset}_asset_news");
-
-        if (assetNews != null && assetNews.Count > 0)
+        var cacheValue = await _cache.GetStringAsync($"{asset}_asset_news");
+        if (cacheValue != null)
         {
-            return Ok(Result.SucessResult(assetNews , "Success!"));
+            var news = JsonConvert.DeserializeObject<List<NewArticle>>(cacheValue);
+            return Ok(Result.SucessResult(news.OrderByDescending(x => x.PublishedAt).ToList(), "Success!"));
         }
 
         var symbol = asset.ToUpper();
+        var assetNews = await _assetsService.GetAssetsNewsFromNewsApi(symbol);
 
-        if (assetNews == null)
+        var jsonString = JsonConvert.SerializeObject(assetNews);
+        await _cache.SetStringAsync($"{asset}_asset_news", jsonString, new DistributedCacheEntryOptions
         {
-            //Request to NewsApi
-            assetNews = await _assetsService.GetAssetsNewsFromNewsApi(symbol);
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24)
+        });
 
-            // Set asset news in cache with 24 hours expiration
-            var jsonString = JsonConvert.SerializeObject(assetNews);
-            await _redisService.SetCacheValueAsync($"{asset}_asset_news", jsonString, TimeSpan.FromHours(24));
-        }
-
-        assetNews = assetNews.OrderByDescending(x => x.PublishedAt).ToList();
-
-        return Ok(Result.SucessResult(assetNews , "Success!"));
+        return Ok(Result.SucessResult(assetNews.OrderByDescending(x => x.PublishedAt).ToList(), "Success!"));
     }
-
 
     [HttpGet("last-news")]
     public async Task<IActionResult> GetLastNewsAsync()
     {
-        //Get cache from redis
-        var lastNews = await _redisService.GetCacheValueAsync<List<NewArticle>>("last_news");
-
-        if (lastNews != null)
+        var cacheValue = await _cache.GetStringAsync("last_news");
+        if (cacheValue != null)
         {
-            return Ok(Result.SucessResult(lastNews, "Success!"));
+            var lastNewsData = JsonConvert.DeserializeObject<List<NewArticle>>(cacheValue);
+            return Ok(Result.SucessResult(lastNewsData, "Success!"));
         }
 
-        //Get last news
-        lastNews = await _assetsService.GetLastTenNewsArticles();
+        var lastNews = await _assetsService.GetLastTenNewsArticles();
 
-        //Set last new in redis cache
         var jsonString = JsonConvert.SerializeObject(lastNews);
-        await _redisService.SetCacheValueAsync("last_news", jsonString, TimeSpan.FromHours(3));
+        await _cache.SetStringAsync("last_news", jsonString, new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(3)
+        });
 
         return Ok(Result.SucessResult(lastNews, "Success!"));
     }
@@ -143,20 +133,20 @@ public class AssetsController : Controller
     [HttpGet("most-traded")]
     public async Task<IActionResult> GetTopTenMostTraded()
     {
-        //Get cache from redis
-        var mostTraded = await _redisService.GetCacheValueAsync<List<SearchStockInfo>>("most_traded_assets");
-
-        if (mostTraded != null)
+        var cacheValue = await _cache.GetStringAsync("most_traded_assets");
+        if (cacheValue != null)
         {
-            return Ok(Result.SucessResult(mostTraded, "Success!"));
+            var mostTradedData = JsonConvert.DeserializeObject<List<SearchStockInfo>>(cacheValue);
+            return Ok(Result.SucessResult(mostTradedData, "Success!"));
         }
 
-        //Get last news
-        mostTraded = await _assetsService.GetTopTenMostTradedAssets();
+        var mostTraded = await _assetsService.GetTopTenMostTradedAssets();
 
-        //Set last new in redis cache
         var jsonString = JsonConvert.SerializeObject(mostTraded);
-        await _redisService.SetCacheValueAsync("most_traded_assets", jsonString, TimeSpan.FromHours(48));
+        await _cache.SetStringAsync("most_traded_assets", jsonString, new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(48)
+        });
 
         return Ok(Result.SucessResult(mostTraded, "Success!"));
     }
